@@ -4,24 +4,72 @@ import React from 'react';
 import Input from './Input';
 import Select from './Select';
 import Button from './Button';
-import Error from './Error';
 
-const validateInput = (checkingText) => {
-    
-    const regexp = /^\d{10,11}$/; 
-    // regular expression - checking if phone number contains only 10 - 11 numbers
-    
-    if (regexp.exec(checkingText) !== null) {
+const validateName = (checkingText) => {
+    if(checkingText !== ''){
+        if(checkingText.match(/^[a-zA-Z]{2,40}( [a-zA-Z]{2,40})+$/)){
             return {
-                isInputValid: true,
+                isInputName: true,
+                errorMessage: ''
+            };
+        }else{
+            return {
+                isInputName: false,
+                errorMessage: 'Input valid name.'
+            };
+        }
+    } else {
+        return {
+            isInputName: false,
+            errorMessage: 'Cannot be empty.'
+        };
+    }
+}
+
+const validateEmail = (checkingText) => {
+    if(checkingText !== ''){
+        let atPos = checkingText.lastIndexOf('@');
+        let dotPos = checkingText.lastIndexOf('.');
+
+        if ((atPos < dotPos && atPos > 0 && checkingText.indexOf('@@') === -1 && dotPos > 2 && (checkingText.length - dotPos) > 2)) {
+            return {
+                isInputEmail: true,
+                errorMessage: ''
+            };
+        }else{
+            return {
+                isInputEmail: false,
+                errorMessage: 'Input valid email.'
+            };
+        }
+    }else{
+        return {
+            isInputEmail: false,
+            errorMessage: 'Cannot be empty.'
+        };
+    }
+}
+
+const validateNumber = (checkingText) => {
+    if(checkingText !== ''){
+        if (checkingText.match(/^\d{10,11}$/)) {
+            return {
+                isInputPhone: true,
                 errorMessage: ''
             };
         } else {
             return {
                 isInputValid: false,
-                errorMessage: 'Please insert valid number'
+                errorMessage: 'Insert valid phone number.'
             };
         }
+    }else{
+        return {
+            isInputValid: false,
+            errorMessage: 'Cannot be empty.'
+        };
+    }
+
 }
 
 class Form extends React.Component {
@@ -29,8 +77,13 @@ class Form extends React.Component {
         super(props);
         this.state = {
             value: '',
-            isInputValid: true,
             errorMessage: '',
+            isInputName: true,
+            isInputEmail: true,
+            isInputPhone: true,
+            typeText: 'text',
+            typeEmail: 'email',
+            typeNumber: 'number',
             carOption: [
                 {type:'Small', model:['Opel Corsa','Toyota Yaris', 'Smart for Two']},
                 {type:'Premium', model:['Audi S8','Jaguar XJR', 'BMW 750iL']},
@@ -39,16 +92,31 @@ class Form extends React.Component {
         }
     }
 
-    handleInput = event => {
-        const { value } = event.target;
+    handleInputValue = event => {
+        let { value } = event.target;
         this.setState({value});
-    }  
-      
-    handleInputValidation = event => {
-    const { isInputValid, errorMessage } = validateInput(this.state.value);
+    }
+    
+    handleInputName = event => {
+        const { isInputName, errorMessage } = validateName(this.state.value);
         this.setState({
-            isInputValid: isInputValid,
-            errorMessage: errorMessage
+            isInputName, errorMessage
+        })
+    
+    }
+    
+    handleInputEmail = event => {
+        const { isInputEmail, errorMessage } = validateEmail(this.state.value);
+        this.setState({
+            isInputEmail, errorMessage
+        })
+    
+    }
+
+    handleInputPhone = event => {
+        const { isInputPhone, errorMessage } = validateNumber(this.state.value);
+        this.setState({
+            isInputPhone, errorMessage
         })
     
     }
@@ -59,10 +127,8 @@ class Form extends React.Component {
 
    handleFormSubmit(e) {
     e.preventDefault();
-    let userData = this.state.newUser;
-    console.log(userData);
-
-    // fetch('http://example.com',{
+    console.log('you click me');
+    // fetch('firebaseURL',{
     //     method: "POST",
     //     body: JSON.stringify(userData),
     //     headers: {
@@ -83,34 +149,43 @@ class Form extends React.Component {
                     <fieldset>
                         <legend>{this.props.tagline}</legend>
                         <Input 
-                            type={'text'} 
+                            type={this.state.typeText}
+                            txtName={'txtName'}
                             placeholder={'Name'}
-                            />
+                            isHidden={this.state.isInputName} 
+                            errorMessage={this.state.errorMessage}    
+                            handleInput={this.handleInputValue}
+                            handleInputValidation={this.handleInputName}
+                        />
                         <Input 
-                            type={'email'} 
-                            placeholder={'Email'}
-                            />
+                            type={this.state.typeEmail}
+                            txtName={'txtEmail'}
+                            placeholder={'Email'} 
+                            isHidden={this.state.isInputEmail} 
+                            errorMessage={this.state.errorMessage}    
+                            handleInput={this.handleInputValue}
+                            handleInputValidation={this.handleInputEmail}
+                        />
                         <Input 
-                            type={'number'} 
+                            type={this.state.typeNumber} 
+                            txtName={'txtPhone'}
                             placeholder={'Phone'}
-                            handleInput={this.handleInput}
-                            handleInputValidation={this.handleInputValidation}
-                            />
-                        <Error
-                            isHidden={this.state.isInputValid} 
-                            errorMessage={this.state.errorMessage} 
-                            />
+                            isHidden={this.state.isInputPhone} 
+                            errorMessage={this.state.errorMessage}    
+                            handleInput={this.handleInputValue}
+                            handleInputValidation={this.handleInputPhone}
+                        />
                         <Select 
                             name={'Car'}
                             placeholder={'Car Option'}
                             options={this.state.carOption}
                             />
-                        {/* <Select 
-                            name="model"
+                        <Select 
+                            name="Model"
                             placeHolder="Model Option"
-                            options={this.state.modelOption}
+                            options={this.state.carOption}
                             value={this.state.model}
-                        /> */}
+                        />
                         <Button 
                             type={'submit'}
                             action={this.handleFormSubmit}

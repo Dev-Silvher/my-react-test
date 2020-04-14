@@ -1,15 +1,25 @@
 import React from 'react';
 
+import Error from './Error';
+
 const Input = props => {
     return(
-        <input 
-            type={props.type}
-            value={props.value}
-            placeholder={props.placeholder}
-            onChange={props.handleInput}
-            onBlur={props.handleInputValidation}
-            required
-        />
+        <div>
+            <input 
+                type={props.type}
+                id={props.txtName}
+                name={props.txtName}
+                placeholder={props.placeholder}
+                onChange={props.handleInput}
+                onBlur={props.handleInputValidation}
+                required
+            />
+            <Error
+                isHidden={props.isHidden} 
+                errorMessage={props.errorMessage}
+                handleInput = {props.handleInput}
+            />
+        </div>
     )
 }
 
